@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 650" width="1180" height="650" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="#64748B"/></marker></defs>
+<rect width="1180" height="650" fill="#FFFFFF"/>
+<text x="40" y="46" font-size="22" font-weight="700" fill="#0F172A">Salesforce Error Assist - system architecture</text>
+<text x="40" y="72" font-size="14" fill="#475569">Event-driven notification, then a guided conversation. Demo: ServiceNow (ITSM) + Aisera (AI orchestration, Teams) + Azure OpenAI GPT-5.1</text>
+<rect x="40" y="105" width="260" height="440" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="60" y="132" font-size="15" font-weight="700" fill="#0F172A">ITSM tool</text><text x="60" y="151" font-size="12" fill="#475569">ServiceNow in the demo</text>
+<rect x="330" y="105" width="810" height="440" rx="14" fill="#FBFBFF" stroke="#AFA9EC" stroke-width="1.2"/>
+<text x="350" y="132" font-size="15" font-weight="700" fill="#0F172A">AI orchestration and chat platform</text><text x="350" y="151" font-size="12" fill="#475569">Aisera in the demo - notify workflow, conversation workflow, two sub flows</text>
+<rect x="60" y="175" width="220" height="64" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+<text x="170" y="198" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Incident created</text>
+<text x="170" y="220" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">SF in text, or CI = Salesforce</text>
+<rect x="60" y="265" width="220" height="64" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+<text x="170" y="288" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Async Business Rule</text>
+<text x="170" y="310" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">insert only, Salesforce condition</text>
+<rect x="60" y="355" width="220" height="64" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+<text x="170" y="378" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Outbound REST Message</text>
+<text x="170" y="400" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">endpoint + auth kept out of the rule</text>
+<rect x="60" y="455" width="220" height="64" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+<text x="170" y="478" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Table + Attachment API</text>
+<text x="170" y="500" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">read ticket, note, comment, file</text>
+<rect x="360" y="175" width="210" height="64" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
+<text x="465" y="198" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Notify workflow</text>
+<text x="465" y="220" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">event payload to chat message</text>
+<rect x="610" y="175" width="230" height="64" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
+<text x="725" y="198" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Proactive message</text>
+<text x="725" y="220" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">See details / Not now</text>
+<rect x="880" y="175" width="230" height="64" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+<text x="995" y="198" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0F172A">Caller in chat</text>
+<text x="995" y="220" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#475569">Teams in the demo</text>
+<rect x="350" y="275" width="770" height="250" rx="12" fill="#FFFFFF" stroke="#AFA9EC" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="450" y="298" font-size="13" font-weight="700" fill="#0F172A">Conversation workflow</text>
+<text x="450" y="316" font-size="11" fill="#475569">starts when the caller taps See details</text>
+<rect x="370" y="335" width="110" height="74" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
+<text x="425" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Find ticket</text>
+<text x="425" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">latest open SF</text>
+<text x="425" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">incident of user</text>
+<rect x="497" y="335" width="110" height="74" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+<text x="552" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Diagnose</text>
+<text x="552" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">LLM #1: identify,</text>
+<text x="552" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">validate, enlighten</text>
+<rect x="624" y="335" width="110" height="74" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+<text x="679" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Explain + Q&amp;A</text>
+<text x="679" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">LLM #3 answers</text>
+<text x="679" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">follow-ups</text>
+<rect x="751" y="335" width="110" height="74" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+<text x="806" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Solution</text>
+<text x="806" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">LLM #2 sub flow,</text>
+<text x="806" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">regenerate loop</text>
+<rect x="878" y="335" width="110" height="74" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>
+<text x="933" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Confirm</text>
+<text x="933" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">Looks good /</text>
+<text x="933" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">Regenerate / Cancel</text>
+<rect x="1005" y="335" width="100" height="74" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
+<text x="1055" y="360" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0F172A">Update</text>
+<text x="1055" y="382" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">note, comment,</text>
+<text x="1055" y="396" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#475569">attachment</text>
+<text x="440" y="440" font-size="11" fill="#475569">Branches after Diagnose: not a Salesforce problem → hand-over message · too vague → one clarifying question, then re-diagnose</text>
+<text x="440" y="458" font-size="11" fill="#475569">Nothing is written to the ticket until the caller chooses "Looks good, add to ticket". The ticket is never resolved.</text>
+<g fill="none" stroke="#64748B" stroke-width="1.5">
+<path d="M170 239V263" marker-end="url(#ah)"/>
+<path d="M170 329V353" marker-end="url(#ah)"/>
+<path d="M280 387H315V207H358" marker-end="url(#ah)"/>
+<path d="M570 207H608" marker-end="url(#ah)"/>
+<path d="M840 207H878" marker-end="url(#ah)"/>
+<path d="M995 239V258H425V333" marker-end="url(#ah)"/>
+<path d="M480 372H495" marker-end="url(#ah)"/>
+<path d="M607 372H622" marker-end="url(#ah)"/>
+<path d="M734 372H749" marker-end="url(#ah)"/>
+<path d="M861 372H876" marker-end="url(#ah)"/>
+<path d="M988 372H1003" marker-end="url(#ah)"/>
+<path d="M425 409V490H282" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+<path d="M1055 409V505H282" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+</g>
+<text x="890" y="252" font-size="11" fill="#475569">See details</text>
+<text x="440" y="484" font-size="11" fill="#475569">GET latest ticket</text>
+<text x="830" y="499" font-size="11" fill="#475569">write after confirm</text>
+<rect x="40" y="572" width="16" height="12" rx="3" fill="#EEEDFE" stroke="#7F77DD"/><text x="64" y="582" font-size="12" fill="#334155">LLM step</text>
+<rect x="150" y="572" width="16" height="12" rx="3" fill="#F1F5F9" stroke="#64748B"/><text x="174" y="582" font-size="12" fill="#334155">code / platform step</text>
+<rect x="320" y="572" width="16" height="12" rx="3" fill="#FEF3C7" stroke="#D97706"/><text x="344" y="582" font-size="12" fill="#334155">user decision</text>
+<rect x="450" y="572" width="16" height="12" rx="3" fill="#E6F1FB" stroke="#378ADD"/><text x="474" y="582" font-size="12" fill="#334155">ITSM</text>
+<text x="40" y="616" font-size="12" fill="#475569">The LLM explains, the user decides, code writes. In the demo the model sees only the ticket text, so causes are marked inferred and fixes are example patterns.</text>
+</svg>
