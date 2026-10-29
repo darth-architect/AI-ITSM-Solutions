@@ -3,7 +3,7 @@
 Used for "Route INC0012345"-style requests from an agent in chat. It orchestrates the same building blocks
 (Ticket Details, Search Similar Tickets, Routing Score, Ticket Assignation) with an LLM agent instead of a fixed workflow.
 
-The event-driven workflow (`07-main-orchestrator`) is the production path: fixed step order, two LLM calls, all
+The event-driven workflow (`07-main-orchestrator`) is the production path: fixed step order, three LLM calls, all
 decisions in code. This agent variant is kept for interactive use and demos. It was the first version built and
 validated with an 18-prompt conversational test pack.
 

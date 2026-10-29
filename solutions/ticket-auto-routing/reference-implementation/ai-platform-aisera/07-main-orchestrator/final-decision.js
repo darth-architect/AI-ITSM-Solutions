@@ -1,14 +1,19 @@
 /*
  * Workflow: Ticket Auto Routing (main)  |  Node: JavaScript "Final Decision"
- * Inputs : c_*  (outputs of Classify Ticket)  and  sc_* (outputs of Routing Score)
- * Output : final -> outcome, group_name, assign, note_only, method_used, work_note
+ * Inputs : c_*  (outputs of Classify Ticket)
+ *          sc_* (outputs of Routing Score)
+ *          sr_* (outputs of Suggest Resolution: sr_basis, sr_summary, sr_steps, sr_references)
+ * Output : final -> outcome, group_name, assign, note_only, method_used, recommended_group, work_note
  *
- * Only two things ever auto-assign a ticket:
+ * A resolver group is assigned only for:
  *   1. an explicit request for exactly one valid group in the ticket text
  *   2. a HIGH confidence band from historical matching, for a group on the same platform
- * Everything else is written as a recommendation or "not routed" note, and the ticket
- * stays in the triage queue.
+ * Every other outcome (weak match, fallback, out of scope, no platform, conflict, error) is sent to
+ * the Service Desk group, with the AI's recommended resolver group (if any) in the note.
+ * Set FALLBACK_GROUP = '' to keep those tickets in the triage queue instead.
  */
+var FALLBACK_GROUP = 'Service Desk';
+
 function S(x) { return (x === undefined || x === null) ? '' : String(x).trim(); }
 function V(name) { try { return S(eval(name)); } catch (e) { return ''; } }
 function ascii(s) { return S(s).replace(/[^\x09\x0A\x20-\x7E]/g, ' '); }
@@ -25,10 +30,11 @@ var band = V('sc_band').toUpperCase();
 var dg = V('sc_decision_group'), conf = V('sc_confidence'), ev = V('sc_evidence');
 var cg = V('c_charter_group'), cs = V('c_charter_strength') || 'weak';
 
-var outcome = 'NOT ROUTED', group = '', assign = false, m = '', confTxt = 'n/a', why = V('c_reason'), showEv = false;
+// ---- 1. Routing decision ----
+var outcome = 'NOT ROUTED', group = '', recommended = '', m = '', confTxt = 'n/a', why = V('c_reason'), showEv = false;
 
 if (path === 'explicit') {
-  group = V('c_explicit_group'); outcome = 'ASSIGNED'; assign = true; m = 'explicit';
+  group = V('c_explicit_group'); outcome = 'ASSIGNED'; m = 'explicit';
   why = 'The ticket explicitly requests routing to ' + group + '.';
 } else if (path === 'conflict') {
   m = 'explicit_conflict';
@@ -42,15 +48,15 @@ if (path === 'explicit') {
 } else if (path === 'search') {
   var dgOk = dg !== '' && GROUPS[platKey].indexOf(dg) > -1;     // never cross platforms
   if (band === 'HIGH' && dgOk) {
-    outcome = 'ASSIGNED'; group = dg; assign = true; m = V('sc_method') || 'consensus';
+    outcome = 'ASSIGNED'; group = dg; m = V('sc_method') || 'consensus';
     confTxt = conf + ' (HIGH)'; showEv = true;
     why = 'Similar resolved tickets were handled by ' + dg + '.';
   } else if (band === 'MEDIUM' && dgOk) {
-    outcome = 'RECOMMENDED'; group = dg; m = 'weak_match';
+    outcome = 'RECOMMENDED'; recommended = dg; m = 'weak_match';
     confTxt = conf + ' (MEDIUM)'; showEv = true;
     why = 'Partial match with resolved tickets handled by ' + dg + '; confidence too low to assign.';
   } else if (cg) {
-    outcome = 'RECOMMENDED'; group = cg; m = 'fallback_' + cs;
+    outcome = 'RECOMMENDED'; recommended = cg; m = 'fallback_' + cs;
     confTxt = band ? (conf + ' (' + band + ')') : 'n/a';
     why = 'No strong historical match; group chosen by charter. ' + V('c_reason');
   } else {
@@ -62,25 +68,46 @@ if (path === 'explicit') {
   why = 'Classification did not complete. Manual triage required.';
 }
 
-var decisionLine = outcome === 'ASSIGNED' ? ('ASSIGNED to ' + group)
-                 : outcome === 'RECOMMENDED' ? ('RECOMMENDED ' + group + ' (not assigned)')
-                 : 'NOT ROUTED';
+// ---- 2. Low confidence -> Service Desk ----
+var sentToFallback = (outcome !== 'ASSIGNED') && FALLBACK_GROUP !== '';
+if (sentToFallback) group = FALLBACK_GROUP;
+var assign = (outcome === 'ASSIGNED') || sentToFallback;
 
-var note = [
+var decisionLine;
+if (outcome === 'ASSIGNED') decisionLine = 'ASSIGNED to ' + group;
+else if (sentToFallback) decisionLine = 'SENT TO ' + FALLBACK_GROUP + ' (low confidence)';
+else if (outcome === 'RECOMMENDED') decisionLine = 'RECOMMENDED ' + recommended + ' (not assigned)';
+else decisionLine = 'NOT ROUTED';
+
+var lines = [
   '[AI Routing] Decision: ' + decisionLine,
+  'Recommended resolver: ' + (outcome === 'ASSIGNED' ? group : (recommended || 'none')),
   'Method: ' + m,
   'Confidence: ' + confTxt,
   'Platform: ' + plat + ' | Primary system: ' + (V('c_primary_system') || 'unknown'),
   'Explicit route: ' + (V('c_explicit_group') || 'none') + ' | Exclusion: ' + (V('c_excluded_system') || 'none'),
   'Evidence: ' + (showEv && ev ? ev : 'none'),
   'Reason: ' + why
-].join('\n');
+];
+
+// ---- 3. Suggested resolution (from the Suggest Resolution sub flow) ----
+var steps = V('sr_steps');
+if (steps) {
+  var basisLine = V('sr_basis') === 'history' && V('sr_references')
+    ? 'based on ' + V('sr_references')
+    : 'general guidance, no similar resolved tickets';
+  lines.push('');
+  lines.push('[AI Suggested Resolution] (' + basisLine + ') - verify before applying');
+  if (V('sr_summary')) lines.push(V('sr_summary'));
+  lines.push(steps);
+}
 
 return {
-  outcome: outcome,
+  outcome: sentToFallback ? 'SERVICE DESK' : outcome,
   group_name: group,
   assign: assign ? 'true' : 'false',
   note_only: assign ? 'false' : 'true',
   method_used: m,
-  work_note: ascii(note)
+  recommended_group: outcome === 'ASSIGNED' ? group : recommended,
+  work_note: ascii(lines.join('\n'))
 };

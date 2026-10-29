@@ -20,12 +20,14 @@ The demo proves the flow end to end on seeded data. Before routing real tickets:
 
 ## Operations
 - **Measure:** auto-assign rate, reassignment rate of AI-assigned tickets (the main quality signal),
-  and the share of tickets left in triage.
+  and the share of tickets sent to Service Desk.
 - **Feedback loop:** when an agent reassigns an AI-routed ticket, that ticket becomes new history.
   Search improves automatically as resolved tickets accumulate.
-- **Failure handling:** if any step fails, the ticket stays in triage. A failed run never leaves a
-  ticket in a wrong group.
-- **Cost:** two LLM calls per routed ticket (Classify and Rerank).
+- **Failure handling:** a classification error sends the ticket to Service Desk. If the workflow itself
+  fails, the ticket stays in the triage queue. A failed run never leaves a ticket in a wrong resolver group.
+- **Suggested resolutions are advisory.** They go in internal work notes only. Track how often agents
+  find them useful before you consider showing anything to end users.
+- **Cost:** three LLM calls per ticket (Classify, Rerank, Suggest Resolution).
 
 ## Customer-specific configuration
 | Item | Where |
@@ -34,3 +36,4 @@ The demo proves the flow end to end on seeded data. Before routing real tickets:
 | Routable groups per platform | `GROUPS` in `plan.js`, `final-decision.js`; `SCOPES` in `url-builder.js` |
 | Group charters and exclusionary systems | Classify prompt |
 | Thresholds | `routing-score.js` |
+| Low-confidence group | `FALLBACK_GROUP` in `final-decision.js` |

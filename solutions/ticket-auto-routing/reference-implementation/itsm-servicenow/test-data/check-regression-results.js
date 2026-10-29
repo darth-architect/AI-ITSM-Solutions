@@ -4,7 +4,7 @@
  *
  * Compares each ticket's current assignment group and latest [AI Routing] work note with the
  * expected outcome, and prints PASS / FAIL / PENDING per ticket plus a summary.
- *   expectGroup : group the ticket should end up in ("AI Triage" = must NOT be assigned)
+ *   expectGroup : group the ticket should end up in ("Service Desk" = low confidence / not routable)
  *   expectNote  : text the latest [AI Routing] note must contain
  */
 var expected = {
@@ -16,8 +16,8 @@ var expected = {
   'AIRT-21': { expectGroup: 'GD-SD-SAP-FICO',             expectNote: 'ASSIGNED',     why: 'account determination is FICO even though it starts in billing' },
   'AIRT-22': { expectGroup: 'SD-ORACLE-TECHNICAL',        expectNote: 'Oracle',       why: 'Oracle platform; assigned or recommended, never an SAP group' },
   'AIRT-23': { expectGroup: 'GD-SD-SAP-Basis',            expectNote: 'explicit',     why: 'explicit valid group in the text' },
-  'AIRT-24': { expectGroup: 'AI Triage',                  expectNote: 'out_of_scope', why: 'Teams is end-user software (exclusion)' },
-  'AIRT-25': { expectGroup: 'AI Triage',                  expectNote: 'NOT ROUTED',   why: 'no SAP/Oracle evidence' },
+  'AIRT-24': { expectGroup: 'Service Desk',               expectNote: 'out_of_scope', why: 'Teams is end-user software (exclusion)' },
+  'AIRT-25': { expectGroup: 'Service Desk',               expectNote: 'no_platform',   why: 'no SAP/Oracle evidence' },
   'AIRT-26': { expectGroup: 'GD-SD-SAP-SD',               expectNote: 'SD',           why: 'pricing condition is SD; assigned or recommended' },
   'AIRT-27': { expectGroup: 'SD-ORACLE-FIN',              expectNote: 'explicit',     why: 'KNOWN RISK: explicit route in caller text wins even across platforms' }
 };
@@ -43,7 +43,7 @@ for (var id in expected) {
   var status;
   if (!note) { status = 'PENDING'; pending++; }
   else if (group === e.expectGroup && note.indexOf(e.expectNote) > -1) { status = 'PASS'; pass++; }
-  else if ((e.expectNote === 'SD' || e.expectNote === 'Oracle') && note.indexOf('RECOMMENDED ' + e.expectGroup) > -1) { status = 'PASS (recommended)'; pass++; }
+  else if ((e.expectNote === 'SD' || e.expectNote === 'Oracle') && group === 'Service Desk' && note.indexOf('Recommended resolver: ' + e.expectGroup) > -1) { status = 'PASS (Service Desk, recommended ' + e.expectGroup + ')'; pass++; }
   else { status = 'FAIL'; fail++; }
 
   gs.info(status + ' | ' + id + ' | ' + inc.number + ' | group: ' + group + ' | expected: ' + e.expectGroup +

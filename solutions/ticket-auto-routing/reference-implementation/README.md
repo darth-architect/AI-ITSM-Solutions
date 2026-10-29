@@ -13,6 +13,7 @@ Placeholders to replace before use:
 | `AI Triage` | `parse-ticket.js`, Business Rule condition | Landing queue that counts as "unassigned" |
 | `GROUPS` allow-list | `plan.js`, `final-decision.js` | Routable groups per platform |
 | `SCOPES` | `url-builder.js` | Query that limits history search to a platform's groups |
+| `FALLBACK_GROUP` | `final-decision.js` | Group that receives every low-confidence ticket (`Service Desk` in the demo; `''` keeps them in triage) |
 
 ```
 reference-implementation/
@@ -29,6 +30,7 @@ reference-implementation/
     ├── 06-rerank-candidates/           Rerank Candidates (sub flow) - prompt + parser
     ├── 07-main-orchestrator/           Ticket Auto Routing (main)
     ├── 08-event-handler/               Ticket Routing Event Handler (trigger)
+    ├── 09-suggest-resolution/          Suggest Resolution (sub flow) - references + prompt + parser
     └── chat-agent/                     on-demand agent variant ("Route INC...")
 ```
 
@@ -102,6 +104,15 @@ query that matches nothing.
 | JS `build-evaluations.js` | output `ev` |
 | Outputs | `evaluations_json`, `evaluated_count` |
 
+### 09 - Suggest Resolution (sub flow)
+| Node | Detail |
+|---|---|
+| Inputs | `short_description`, `description`, `platform`, `candidates_json`, `evaluations_json` |
+| JS `pick-references.js` | inputs `candidates_json`, `evaluations_json`, output `refs` (top 3 tickets with intent match and relevance >= 0.7, with their close notes) |
+| Prompt action | [`prompts/suggest-resolution.md`](../prompts/suggest-resolution.md), inputs `short_description`, `description`, `platform`, references = `${refs.references_text}`, single output `resolutionSuggestion` |
+| JS `parse-resolution.js` | inputs `resolutionSuggestion`, `refs`, output `sr` |
+| Outputs | `basis`, `summary`, `steps`, `references` |
+
 ### 07 - Ticket Auto Routing (main)
 Sub flow outputs are mapped to **prefixed** flow variables, because several sub flows share output
 names (`number`, `platform`, `method`, `status`).
@@ -115,8 +126,9 @@ names (`number`, `platform`, `method`, `status`).
 | 5 | Search Similar Tickets | platform `c_search_platform`, exclude `t_sys_id`, `c_anchor_clause`, `c_keyword_clause` | `s_candidate_count`, `s_candidates_json` |
 | 6 | Rerank Candidates | `t_short_description`, `t_description`, `s_candidates_json` | `r_evaluations_json`, `r_evaluated_count` |
 | 7 | Routing Score | `s_candidates_json`, `r_evaluations_json` | `sc_band`, `sc_method`, `sc_decision_group`, `sc_confidence`, `sc_evidence` |
-| 8 | JS `final-decision.js` | all `c_*` and `sc_*` | `final` |
-| 9 | Ticket Assignation | `t_sys_id`, `${final.group_name}`, `${final.work_note}`, `${final.assign}`, `${final.note_only}` | `a_status`, `a_assigned_group` |
+| 8 | Suggest Resolution | `t_short_description`, `t_description`, `c_platform`, `s_candidates_json`, `r_evaluations_json` | `sr_basis`, `sr_summary`, `sr_steps`, `sr_references` |
+| 9 | JS `final-decision.js` | all `c_*`, `sc_*` and `sr_*` | `final` |
+| 10 | Ticket Assignation | `t_sys_id`, `${final.group_name}`, `${final.work_note}`, `${final.assign}`, `${final.note_only}` | `a_status`, `a_assigned_group` |
 
 ### 08 - Ticket Routing Event Handler
 | Node | Detail |

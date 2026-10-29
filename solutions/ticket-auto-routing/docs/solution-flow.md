@@ -3,9 +3,13 @@
 ![Decision flow](../architecture/decision-flow.svg)
 
 Routing runs the same four rules, in this order, on every ticket. Each rule either decides or hands
-over to the next one. Two LLM calls are used per ticket: **Classify** (Rules 1, 2 and the fallback
-pick) and **Rerank** (Rule 3). Everything else, including the confidence maths and whether to assign,
-is deterministic code.
+over to the next one. Three LLM calls are used per ticket: **Classify** (Rules 1, 2 and the fallback
+pick), **Rerank** (Rule 3) and **Suggest Resolution** (resolution steps for the note). Everything else,
+including the confidence maths and whether to assign, is deterministic code.
+
+Only two outcomes assign a **resolver** group: an explicit valid request (Rule 1) and a HIGH band
+(Rule 3). Every other outcome sends the ticket to the **Service Desk** group, with the AI's
+recommended resolver in the note.
 
 ## 0. Intake and gate
 
@@ -40,13 +44,13 @@ secondary.
 | "Invoice wrong in SAP; Salesforce shows the correct price" | SAP | continue |
 | "Delivery notes from SAP stuck in SP01" (spool) | SAP | continue (not printer hardware) |
 
-**Outcome when excluded:** not routed (`out_of_scope`). The ticket stays in triage with a note.
+**Outcome when excluded:** sent to Service Desk (`out_of_scope`), with a note.
 
 **2B–2E. Platform.** The platform (SAP / Oracle / QAD / none) is decided from verbatim evidence only:
 transaction codes, SAP objects, runtime errors and message numbers, Oracle concurrent programs and so
 on. Generic words like *invoice*, *GST*, *report* or *payment* are not evidence on their own.
 
-**Outcome when no platform:** not routed (`no_platform`).
+**Outcome when no platform:** sent to Service Desk (`no_platform`).
 
 ## Rule 3 - Historical match
 
@@ -88,7 +92,7 @@ margin           = (top - second) / sum of all group scores
 |---|---|---|
 | HIGH (`consensus`) | >= 2 supporting tickets, confidence >= 0.6, margin >= 0.2 | assign |
 | HIGH (`top1`) | best relevance >= 0.85 and confidence >= 0.6 | assign |
-| MEDIUM (`weak_match`) | confidence >= 0.4 and best relevance >= 0.6 | recommend only |
+| MEDIUM (`weak_match`) | confidence >= 0.4 and best relevance >= 0.6 | Service Desk, recommended resolver in the note |
 | LOW | anything else | Rule 4 |
 
 `top1` exists because some problems have exactly one strong historical twin. For example, the
@@ -103,23 +107,42 @@ of what each team owns) for the identified platform. Exclusion checks run first:
 T-code access → Security; firefighter or SoD → GRC; audit evidence → ITGC; dumps, jobs, transports,
 spool → Basis; IDoc or EDI → Integration.
 
-**Outcome:** recommend only (`fallback_clear` or `fallback_weak`). Fallback never auto-assigns in this
-design.
+**Outcome:** sent to Service Desk with the charter group as the recommended resolver (`fallback_clear`
+or `fallback_weak`). Fallback never assigns a resolver group in this design.
+
+## Suggested resolution
+
+After scoring, the **Suggest Resolution** step writes 3-6 first steps for whoever picks the ticket up.
+- **Grounded in history:** it uses only the past tickets the reranker judged as the same problem
+  (intent match, relevance >= 0.7), up to three, and their close notes, adapted to the new ticket.
+- **General when there's no history:** if nothing qualifies, it gives general diagnostic steps and the
+  note says so.
+- **Guardrails:** it never invents config values or document numbers, never suggests bypassing
+  approvals or security controls, and goes in the internal work note only, never in customer-visible
+  comments.
 
 ## Output: one work note per decision
 
 ```
-[AI Routing] Decision: ASSIGNED to GD-SD-SAP-SD
+[AI Routing] Decision: ASSIGNED to GD-SD-SAP-FICO
+Recommended resolver: GD-SD-SAP-FICO
 Method: top1
 Confidence: 1 (HIGH)
 Platform: SAP | Primary system: SAP
 Explicit route: none | Exclusion: none
-Evidence: INC0014610 (0.95)
-Reason: Similar resolved tickets were handled by GD-SD-SAP-SD.
+Evidence: INC0014617 (0.95)
+Reason: Similar resolved tickets were handled by GD-SD-SAP-FICO.
+
+[AI Suggested Resolution] (based on INC0014617) - verify before applying
+Likely posting period 009 is closed for account type K in the company code's variant.
+1. Open OB52 and check the posting period variant used by company code 1400
+2. Confirm whether period 009 is open for account type K (vendors)
+3. If it should be open per the close calendar, get finance controller approval and open it
+4. Ask the user to re-post one invoice in FB60 to confirm
 ```
 
-Every run writes exactly one note, including runs that don't assign anything. A recommended ticket stays
-in the triage queue with the AI's suggestion visible to the human triager.
+Low-confidence tickets get the same note with `Decision: SENT TO Service Desk (low confidence)` and
+the recommended resolver, so the Service Desk agent can forward the ticket in one click.
 
 ## What is AI and what is code
 
@@ -130,4 +153,5 @@ in the triage queue with the AI's suggestion visible to the human triager.
 | Similar ticket relevance | judges | discards numbers that weren't retrieved |
 | Confidence, band, assign or not | - | all |
 | Fallback group | proposes | validates against the platform's groups |
+| Resolution steps | writes, from similar tickets' close notes | picks the reference tickets, formats, ASCII only |
 | Work note | - | template, ASCII only |

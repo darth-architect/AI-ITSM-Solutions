@@ -2,7 +2,7 @@
 <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="#64748B"/></marker></defs>
 <rect width="1180" height="600" fill="#FFFFFF"/>
 <text x="40" y="46" font-size="22" font-weight="700" fill="#0F172A">Ticket Auto Routing - decision flow</text>
-<text x="40" y="72" font-size="14" fill="#475569">Four rules, always in this order. Only two outcomes assign a ticket; everything else stays with a human, with a reason.</text>
+<text x="40" y="72" font-size="14" fill="#475569">Four rules, always in this order. Only two outcomes assign a resolver group; everything else goes to Service Desk with a recommendation.</text>
 <rect x="40" y="110" width="200" height="56" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
 <text x="140.0" y="129.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#0C447C">Unrouted ticket</text>
 <text x="140.0" y="147.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">no group or triage queue</text>
@@ -38,13 +38,13 @@
 <rect x="40" y="360" width="230" height="76" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
 <text x="155.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#27500A">ASSIGN</text>
 <text x="155.0" y="398.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">method: explicit</text>
-<text x="155.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">2+ groups: note only</text>
+<text x="155.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">2+ groups: Service Desk</text>
 <path d="M441 286 L441 358" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <text x="449" y="326" font-size="11" fill="#475569">yes</text>
 <rect x="326" y="360" width="230" height="76" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
-<text x="441.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#1E293B">NOT ROUTED</text>
+<text x="441.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#1E293B">SERVICE DESK</text>
 <text x="441.0" y="398.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#475569">out_of_scope or no_platform</text>
-<text x="441.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#475569">stays in triage</text>
+<text x="441.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#475569">reason in the note</text>
 <path d="M667 286 L667 358" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <text x="675" y="326" font-size="11" fill="#27500A">HIGH</text>
 <rect x="612" y="360" width="110" height="76" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
@@ -54,16 +54,16 @@
 <path d="M787 286 L787 358" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <text x="795" y="326" font-size="11" fill="#854F0B">MEDIUM</text>
 <rect x="732" y="360" width="110" height="76" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="787.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#633806">RECOMMEND</text>
-<text x="787.0" y="398.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">weak_match</text>
-<text x="787.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">not assigned</text>
+<text x="787.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#633806">SERVICE DESK</text>
+<text x="787.0" y="398.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">weak_match +</text>
+<text x="787.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">recommendation</text>
 <path d="M1013 286 L1013 358" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <rect x="898" y="360" width="230" height="76" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="6 4"/>
-<text x="1013.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#633806">RECOMMEND</text>
+<text x="1013.0" y="380.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#633806">SERVICE DESK</text>
 <text x="1013.0" y="398.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">fallback_clear / _weak</text>
-<text x="1013.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">never auto-assigns</text>
+<text x="1013.0" y="416.0" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">charter group recommended</text>
 <rect x="40" y="480" width="1088" height="52" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
-<text x="584.0" y="506.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#1E293B">Update ticket: one structured work note on every run; the group is set only for ASSIGN</text>
+<text x="584.0" y="506.0" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#1E293B">Update ticket: resolver group or Service Desk, plus one work note with the decision and suggested resolution steps</text>
 <path d="M155 436 L155 478" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <path d="M441 436 L441 478" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
 <path d="M667 436 L667 478" fill="none" stroke="#64748B" stroke-width="1.5" marker-end="url(#ah)"/>
